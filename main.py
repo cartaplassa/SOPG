@@ -40,10 +40,19 @@ with open("./ver.txt") as f:
   for line in f:
     verbs.append(line.strip())
 
+# HELP:
+def printhelp():
+  print('Regenerate first word: 1')
+  print('Regenerate second word: 2')
+  print('Regenerate third word: 3')
+  print('Regenerate fourth word: 4')
+  print('Regenerate whole password: 5')
+  print('Exit the program: 0')
+
 # EXEC:
 choice = 5
 pword = []
-print('1-4 - NEW WORD, 5 - NEW PASSWORD, 0 - EXIT')
+printhelp()
 while choice != 0:
   if choice == 5:
     pword = []
@@ -51,24 +60,24 @@ while choice != 0:
     pword.append(passgen(nouns))
     pword.append(passgen(verbs))
     pword.append(passgen(adverbs))
-    print('GENERATED NEW PASSWORD:')
+    print('New password generated:')
     print('-'.join(pword))
   elif choice == 1:
     pword[0] = passgen(adjectives)
-    print('GENERATED NEW ADJECTIVE:')
+    print('New adjective generated:')
     print('-'.join(pword))
   elif choice == 2:
     pword[1] = passgen(nouns)
-    print('GENERATED NEW NOUN:')
+    print('New noun generated:')
     print('-'.join(pword))
   elif choice == 3:
     pword[2] = passgen(verbs)
-    print('GENERATED NEW VERB:')
+    print('New verb generated:')
     print('-'.join(pword))
   elif choice == 4:
     pword[3] = passgen(adverbs)
-    print('GENERATED NEW ADVERB:')
+    print('New adverb generated:')
     print('-'.join(pword))
   else:
-    print('1-4 - NEW WORD, 5 - NEW PASSWORD, 0 - EXIT')
+    printhelp()
   choice = int(input())
