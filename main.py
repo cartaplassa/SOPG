@@ -1,21 +1,24 @@
 import random
 
 
+leetrules = {
+  'O': '0',
+  'o': '0',
+  'I': '1',
+  'i': '1',
+  'B': '8',
+  'b': '8',
+  'S': '$',
+  's': '$',
+  'L': '!',
+  'l': '!'
+}
+
 def leetify(word):
-    return (word
-    .replace('-','')
-    .lower()
-    .capitalize()
-    .replace('O','0')
-    .replace('o','0')
-    .replace('I','1')
-    .replace('i','1')
-    .replace('B','8')
-    .replace('b','8')
-    .replace('S','$')
-    .replace('s','$')
-    .replace('L','!')
-    .replace('l','!'))
+  leetified = word.replace('-','').lower().capitalize()
+  for rule in leetrules:
+    leetified = leetified.replace(rule, leetrules[rule])
+  return leetified
 
 def passgen(source):
     return leetify(random.choice(source))
@@ -60,24 +63,22 @@ while choice != 0:
     pword.append(passgen(nouns))
     pword.append(passgen(verbs))
     pword.append(passgen(adverbs))
-    print('New password generated:')
-    print('-'.join(pword))
+    print('New password generated: ', '-'.join(pword))
   elif choice == 1:
     pword[0] = passgen(adjectives)
-    print('New adjective generated:')
-    print('-'.join(pword))
+    print('New adjective generated:', '-'.join(pword))
   elif choice == 2:
     pword[1] = passgen(nouns)
-    print('New noun generated:')
-    print('-'.join(pword))
+    print('New noun generated:     ', '-'.join(pword))
   elif choice == 3:
     pword[2] = passgen(verbs)
-    print('New verb generated:')
-    print('-'.join(pword))
+    print('New verb generated:     ', '-'.join(pword))
   elif choice == 4:
     pword[3] = passgen(adverbs)
-    print('New adverb generated:')
-    print('-'.join(pword))
+    print('New adverb generated:   ', '-'.join(pword))
   else:
     printhelp()
-  choice = int(input())
+  try:
+    choice = int(input('User input: '))
+  except:
+    printhelp()
