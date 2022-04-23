@@ -1,6 +1,6 @@
 import random
 
-
+# List of rules, key is replaced with value
 leetrules = {
   'O': '0',
   'o': '0',
@@ -14,21 +14,22 @@ leetrules = {
   'l': '!'
 }
 
-def leetify(word):
+def leetify(word: str) -> str():
   leetified = word.replace('-','').lower().capitalize()
   for rule in leetrules:
     leetified = leetified.replace(rule, leetrules[rule])
   return leetified
 
-def passgen(source):
+def passgen(source: List[str]) -> str:
     return leetify(random.choice(source))
 
 # v3 Generator Formula: ADJ + NOU + VER + ADV
-# Custom separators w/ random chance
+## Deprecated, might be returned later
+## Custom separators w/ random chance:
 # separators = ["_", "/", "-"]
 # result = random.choice(separators).join(random.sample(dictlist, 3))
 
-# INIT:
+# INIT: 
 adjectives, adverbs, nouns, verbs = [], [], [], []
 with open("./adj.txt") as f:
   for line in f:
@@ -81,4 +82,5 @@ while choice != 0:
   try:
     choice = int(input('User input: '))
   except:
+    print('Error: number expected, letter found')
     printhelp()
