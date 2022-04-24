@@ -20,7 +20,7 @@ def leetify(word: str) -> str():
     leetified = leetified.replace(rule, leetrules[rule])
   return leetified
 
-def passgen(source: List[str]) -> str:
+def passgen(source: list[str]) -> str:
     return leetify(random.choice(source))
 
 # v3 Generator Formula: ADJ + NOU + VER + ADV
@@ -79,6 +79,7 @@ while choice != 0:
     print('New adverb generated:   ', '-'.join(pword))
   else:
     printhelp()
+  print('---')
   try:
     choice = int(input('User input: '))
   except:
