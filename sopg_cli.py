@@ -58,6 +58,9 @@ class Password():
 
     def __str__(self):
         return self.divider.join(self.words)
+    
+    def get(self):
+        return self.divider.join(self.words)
 
 
 def print_help(password):
@@ -82,7 +85,6 @@ def set_logger():
     log_formatter = logging.Formatter(LOG_FORMAT, datefmt=LOG_DATEFMT)
     log_handler.setFormatter(log_formatter)
     logger.addHandler(log_handler)
-
 
 
 def main():
@@ -114,6 +116,7 @@ def main():
                 print_help(password)
         print('---')
         choice = input('User input: ')
+
 
 if __name__ == '__main__':
     main()
