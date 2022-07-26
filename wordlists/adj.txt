@@ -8090,7 +8090,6 @@ electrifying
 electroacoustic
 electroanalytical
 electrochemical
-electroencephalographic
 electrolytic
 electromagnetic
 electromechanical

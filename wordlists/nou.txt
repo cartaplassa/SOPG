@@ -11767,7 +11767,6 @@ anticyclone
 anticyclones
 antidepressant
 antidepressants
-antidisestablishmentarianism
 antidiuretic
 antidote
 antidotes
@@ -20474,7 +20473,6 @@ centimes
 centimeter
 centimetre
 centimetre-gram-second
-centimetre-gram-seconds
 centimetres
 centimo
 centipede
@@ -23621,7 +23619,6 @@ comparison
 comparisons
 compartment
 compartmentalization
-compartmentalizations
 compartments
 compass
 compasses
@@ -25461,7 +25458,6 @@ countenancers
 countenances
 counter
 counter-revolution
-counter-revolutionaries
 counter-revolutionary
 counter-revolutions
 counteraction
@@ -29278,7 +29274,6 @@ dicer
 dicers
 dices
 dichasium
-dichlorodiphenyltrichloroethane
 dichogamies
 dichogamy
 dichotomies
@@ -30170,7 +30165,6 @@ dispraises
 disproof
 disproofs
 disproportion
-disproportionableness
 disproportionateness
 disproportions
 disproving
@@ -32417,8 +32411,6 @@ electrodialysis
 electrodynamics
 electrodynamometer
 electroencephalogram
-electroencephalograph
-electroencephalography
 electroextraction
 electroforming
 electrograph
@@ -34019,7 +34011,6 @@ establisher
 establishers
 establishment
 establishmentarian
-establishmentarianism
 establishments
 estafette
 estafettes
@@ -46149,7 +46140,6 @@ indissolubleness
 indistinctiveness
 indistinctness
 indistinguishability
-indistinguishableness
 inditement
 inditements
 inditer
@@ -59805,8 +59795,6 @@ otoliths
 otologist
 otologists
 otology
-otorhinolaryngologist
-otorhinolaryngologists
 otorhinolaryngology
 otosclerosis
 otoscope
@@ -64369,7 +64357,6 @@ pneumonectomies
 pneumonectomy
 pneumonia
 pneumonitis
-pneumonoultramicroscopicsilicovolcanoconiosis
 pneumothorax
 poa
 poacher
@@ -64730,7 +64717,6 @@ polysyndeton
 polysyndetons
 polytechnic
 polytechnics
-polytetrafluoroethylene
 polytheism
 polytheist
 polytheists
@@ -66858,7 +66844,6 @@ pseudocarps
 pseudoclassicism
 pseudocyesis
 pseudoephedrine
-pseudohermaphroditism
 pseudomonad
 pseudomonades
 pseudomonads
@@ -84741,7 +84726,6 @@ transsexuals
 transshipment
 transshipments
 transubstantiation
-transubstantiationalist
 transudate
 transudates
 transudation
