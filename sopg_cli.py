@@ -11,10 +11,12 @@ class Password():
         return leetified
 
     def new_sequence(self, source: str) -> list:
-        return [each for each in source.replace(' ', '').lower().split(',') if each in list(self.pool.keys())]
+        return [each for each in source.replace(' ', '').lower().split(',') \
+            if each in list(self.pool.keys())]
     
     def set_sequence(self, source: str):
-        self.sequence = self.new_sequence(source) if self.new_sequence(source) else self.new_sequence('adj,nou,ver,adv')
+        self.sequence = self.new_sequence(source) if self.new_sequence(source) \
+            else self.new_sequence('adj,nou,ver,adv')
 
     def generate(self, source: list[str]) -> str:
         return self.leetify(random.choice(self.pool[source]))
