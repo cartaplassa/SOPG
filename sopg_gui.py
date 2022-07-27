@@ -30,36 +30,41 @@ class App:
             label.destroy()
         self.labels = []
         # Button generator for N buttons:
-        # (N-1) times generate button w/ divider
-        # On N-th time generate only button
-        # On (N+1)-th time generate 'Regen PW' button
-        for i in range(len(self.password.words)-1):
-            self.buttons.append(tk.Button(
-                self.button_frame, 
-                text=self.password.words[i], 
-                command=lambda x = i: self.regen_one(x)
-            ))
-            self.buttons[i].pack(side=tk.LEFT)
-
-            self.labels.append(tk.Label(
-                self.button_frame, 
-                text=self.password.divider
-            ))
-            self.labels[i].pack(side=tk.LEFT)
-        
-        self.buttons.append(tk.Button(
-            self.button_frame, 
-            text=self.password.words[len(self.password.words)-1], 
-            command=lambda: self.regen_one(len(self.password.words)-1)
-        ))
-        self.buttons[len(self.password.words)-1].pack(side=tk.LEFT)
-
+        # Run 1: generate button
+        first = True
+        # Runs 2 to N: generate divider+button
+        # Run N+1: generate 'Regen PW' button
+        for i in range(len(self.password.words)):
+            # Run 1:
+            if first:
+                self.buttons.append(tk.Button(
+                    self.button_frame, 
+                    text=self.password.words[0], 
+                    command=lambda: self.regen_one(0)
+                ))
+                self.buttons[0].pack(side=tk.LEFT)
+                first = False
+            # Runs 2 to N:
+            else:
+                self.labels.append(tk.Label(
+                    self.button_frame, 
+                    text=self.password.divider
+                ))
+                self.labels[i-1].pack(side=tk.LEFT)
+                self.buttons.append(tk.Button(
+                    self.button_frame, 
+                    text=self.password.words[i], 
+                    command=lambda x = i: self.regen_one(x)
+                ))
+                self.buttons[i].pack(side=tk.LEFT)
+        # Run N+1
         self.buttons.append(tk.Button(
             self.management_frame, 
             text="Regen PW", 
             command=lambda: self.regen_whole()
         ))
         self.buttons[-1].grid(row=0,column=0)
+        # Done
 
     def __init__(self, root):
         self.password = core.Password()
