@@ -26,10 +26,39 @@ class App:
         for button in self.buttons:
             button.destroy()
         self.buttons = []
-        for i in range(len(self.password.words)):
-            self.buttons.append(tk.Button(self.button_frame, text=self.password.words[i], command=lambda x = i: self.regen_one(x)))
+        for label in self.labels:
+            label.destroy()
+        self.labels = []
+        # Button generator for N buttons:
+        # (N-1) times generate button w/ divider
+        # On N-th time generate only button
+        # On (N+1)-th time generate 'Regen PW' button
+        for i in range(len(self.password.words)-1):
+            self.buttons.append(tk.Button(
+                self.button_frame, 
+                text=self.password.words[i], 
+                command=lambda x = i: self.regen_one(x)
+            ))
             self.buttons[i].pack(side=tk.LEFT)
-        self.buttons.append(tk.Button(self.management_frame, text="Regen PW", command=lambda: self.regen_whole()))
+
+            self.labels.append(tk.Label(
+                self.button_frame, 
+                text=self.password.divider
+            ))
+            self.labels[i].pack(side=tk.LEFT)
+        
+        self.buttons.append(tk.Button(
+            self.button_frame, 
+            text=self.password.words[len(self.password.words)-1], 
+            command=lambda: self.regen_one(len(self.password.words)-1)
+        ))
+        self.buttons[len(self.password.words)-1].pack(side=tk.LEFT)
+
+        self.buttons.append(tk.Button(
+            self.management_frame, 
+            text="Regen PW", 
+            command=lambda: self.regen_whole()
+        ))
         self.buttons[-1].grid(row=0,column=0)
 
     def __init__(self, root):
@@ -47,6 +76,7 @@ class App:
                 'l': '!'
         }
 
+        #self.header = tk.Frame(root)
         self.header = tk.LabelFrame(root, text="Header")
         self.header.pack(fill=tk.X)
 
@@ -57,11 +87,21 @@ class App:
         self.structure_frame = tk.Frame(root)
         self.structure_frame.pack()
 
-        self.copy_button = tk.Button(self.management_frame, text="Copy to CB", command=lambda: self.to_clipboard(root))
+        self.copy_button = tk.Button(
+            self.management_frame, 
+            text="Copy to CB", 
+            command=lambda: self.to_clipboard(root)
+        )
         self.copy_button.grid(row=0,column=1)
 
         self.leetify_var = tk.BooleanVar()
-        self.leetify_box = tk.Checkbutton(self.management_frame, text='Leetify', variable=self.leetify_var, offvalue=False, onvalue=True)
+        self.leetify_box = tk.Checkbutton(
+            self.management_frame, 
+            text='Leetify', 
+            variable=self.leetify_var, 
+            offvalue=False, 
+            onvalue=True
+        )
         self.leetify_box.grid(row=0,column=2)
         self.leetify_box.select()
 
@@ -73,10 +113,11 @@ class App:
         self.divider_frame = tk.LabelFrame(self.structure_frame, text='Divider')
         self.divider_frame.pack(side=tk.LEFT)
         self.divider_field = tk.Entry(self.divider_frame, width=15)
-        self.divider_field.insert(0, '/')
+        self.divider_field.insert(0, '-')
         self.divider_field.pack()
 
         self.buttons = []
+        self.labels = []
         self.update_buttons()
 
 
