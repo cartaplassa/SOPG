@@ -13,10 +13,10 @@ class App:
                 offvalue=False,
                 onvalue=True)
             self.checkbox.select()
-            self.entry_from = tk.Entry(self, width=9)
+            self.entry_from = tk.Entry(self, width=17)
             self.entry_from.insert(0, rule_from)
-            self.arrow_point_label = tk.Label(self, text='->', padx=10)
-            self.entry_to = tk.Entry(self, width=4)
+            self.arrow_point_label = tk.Label(self, text='=>', padx=10)
+            self.entry_to = tk.Entry(self, width=5)
             self.entry_to.insert(0, rule_to)
             self.remove_button = tk.Button(self, text='X', command=self.delete)
 
@@ -25,7 +25,7 @@ class App:
             self.entry_from.pack(side=tk.LEFT)
             self.arrow_point_label.pack(side=tk.LEFT)
             self.entry_to.pack(side=tk.LEFT)
-            self.remove_button.pack(side=tk.LEFT)
+            self.remove_button.pack(side=tk.LEFT, padx=(19,0))
 
         def delete(self):
             self.destroy()
@@ -47,7 +47,6 @@ class App:
             result_dict = {**result_dict, **each.get()} if each.checked else result_dict
         return result_dict
     # End of rule functions
-
 
     def set_case(self, new_case):
         self.password.set_case(new_case)
@@ -88,7 +87,7 @@ class App:
             # Run 1:
             if first:
                 self.buttons.append(tk.Button(
-                    self.button_frame,
+                    self.button_frame, width=12,
                     text=self.password.words[0],
                     command=lambda: self.regen_one(0)
                 ))
@@ -102,7 +101,7 @@ class App:
                 ))
                 self.labels[i-1].pack(side=tk.LEFT)
                 self.buttons.append(tk.Button(
-                    self.button_frame,
+                    self.button_frame, width=12,
                     text=self.password.words[i],
                     command=lambda x = i: self.regen_one(x)
                 ))
@@ -110,7 +109,7 @@ class App:
         # Run N+1
         self.buttons.append(tk.Button(
             self.management_frame,
-            text="Regen PW",
+            text="Regenerate",
             command=lambda: self.regen_whole()
         ))
         self.buttons[-1].grid(row=0,column=0)
@@ -119,14 +118,10 @@ class App:
     def __init__(self, root):
         self.password = core.Password()
 
-        #self.header = tk.Frame(root)
-        self.header = tk.LabelFrame(root, text="Header")
-        self.header.pack(fill=tk.X)
-
-        self.button_frame = tk.LabelFrame(self.header, text="Button frame")
-        self.button_frame.pack(fill=tk.X, side=tk.LEFT)
-        self.management_frame = tk.LabelFrame(self.header, text="MGMT frame")
-        self.management_frame.pack(side=tk.RIGHT)
+        self.button_frame = tk.Frame(root, padx=10, pady=10)
+        self.button_frame.pack()
+        self.management_frame = tk.LabelFrame(root, padx=10)
+        self.management_frame.pack(ipadx=3)
         self.structure_frame = tk.Frame(root)
         self.structure_frame.pack()
 
@@ -150,12 +145,12 @@ class App:
 
         self.sequence_frame = tk.LabelFrame(self.structure_frame, text='Sequence')
         self.sequence_frame.pack(side=tk.LEFT)
-        self.sequence_field = tk.Entry(self.sequence_frame, width=100)
+        self.sequence_field = tk.Entry(self.sequence_frame, width=29)
         self.sequence_field.insert(0, 'adj,nou,ver,adv')
-        self.sequence_field.pack()
+        self.sequence_field.pack(padx=1)
         self.divider_frame = tk.LabelFrame(self.structure_frame, text='Divider')
         self.divider_frame.pack(side=tk.LEFT)
-        self.divider_field = tk.Entry(self.divider_frame, width=15)
+        self.divider_field = tk.Entry(self.divider_frame, width=9)
         self.divider_field.insert(0, '-')
         self.divider_field.pack()
 
@@ -164,24 +159,24 @@ class App:
         self.case_var = tk.IntVar()
         self.case_var.set(1)
         self.radio_lower = tk.Radiobutton(
-            self.case_frame, 
-            text="Lowercase", 
-            variable=self.case_var, 
-            value=0, 
+            self.case_frame,
+            text="Lowercase",
+            variable=self.case_var,
+            value=0,
             command=lambda: self.set_case(0))
         self.radio_lower.pack(side=tk.LEFT)
         self.radio_capital = tk.Radiobutton(
-            self.case_frame, 
-            text="Capitalized", 
-            variable=self.case_var, 
-            value=1, 
+            self.case_frame,
+            text="Capitalized",
+            variable=self.case_var,
+            value=1,
             command=lambda: self.set_case(1))
         self.radio_capital.pack(side=tk.LEFT)
         self.radio_upper = tk.Radiobutton(
-            self.case_frame, 
-            text="Uppercase", 
-            variable=self.case_var, 
-            value=2, 
+            self.case_frame,
+            text="Uppercase",
+            variable=self.case_var,
+            value=2,
             command=lambda: self.set_case(2))
         self.radio_upper.pack(side=tk.LEFT)
 
@@ -194,11 +189,13 @@ class App:
         self.add_rule('S,s', '$')
         self.add_rule('L,l', '!')
 
-        add_rule_button = tk.Button(root, text="+", width=25, command=self.add_rule)
+        add_rule_button = tk.Button(root, text="+", width=36, command=self.add_rule)
         add_rule_button.pack()
 
         self.buttons = []
         self.labels = []
+        # Should be max possible length in pixels
+        # self.password.words = [20*'W' for each in range(4)]
         self.update_buttons()
 
 

@@ -36,6 +36,12 @@ class Password():
             self.words = [word.lower().capitalize() for word in self.words]
         elif new_case == 2:
             self.words = [word.upper() for word in self.words]
+        # self.words = [
+        #     [word.lower() for word in self.words],
+        #     [word.lower().capitalize() for word in self.words],
+        #     [word.upper() for word in self.words]
+        # ][new_case]
+        # Same but blursed
 
     # IMPORTANT: operates w/ indices, not w/ numbers
     def regen_one(self, which: int):
@@ -69,7 +75,7 @@ class Password():
         }
         self.divider = '-'
         self.case = 1
-        # Every 'sequence' item corresponds to some key in pool
+        # Every 'sequence' item corresponds to some key in pool dict
         self.set_sequence('')
         self.regen_whole()
 
@@ -91,12 +97,7 @@ def print_help(password):
     print('l: lowercase      (example)')
     print('c: capitalized    (Example)')
     print('u: uppercase/caps (EXAMPLE)')
-    if password.case == 0:
-        print('current case: lowercase')
-    elif password.case == 1:
-        print('current case: capitalized')
-    elif password.case == 2:
-        print('current case: uppercase')
+    print(f"current case: {('lowercase', 'capitalize', 'uppercase')[password.case]}")
     print('x: Exit the program')
 
 
