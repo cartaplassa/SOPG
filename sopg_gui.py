@@ -48,6 +48,11 @@ class App:
         return result_dict
     # End of rule functions
 
+
+    def set_case(self, new_case):
+        self.password.set_case(new_case)
+        self.update_buttons()
+
     def to_clipboard(self, root: tk.Tk):
         root.clipboard_clear()
         root.clipboard_append(self.password.get())
@@ -55,7 +60,7 @@ class App:
     def update_param(self):
         self.password.leetrules = self.result() if self.leetify_var.get() else {}
         self.password.set_sequence(self.sequence_field.get())
-        self.password.set_divider(self.divider_field.get())
+        self.password.divider = self.divider_field.get()
 
     def regen_one(self, number: int):
         self.update_param()
@@ -153,6 +158,32 @@ class App:
         self.divider_field = tk.Entry(self.divider_frame, width=15)
         self.divider_field.insert(0, '-')
         self.divider_field.pack()
+
+        self.case_frame = tk.LabelFrame(root)
+        self.case_frame.pack()
+        self.case_var = tk.IntVar()
+        self.case_var.set(1)
+        self.radio_lower = tk.Radiobutton(
+            self.case_frame, 
+            text="Lowercase", 
+            variable=self.case_var, 
+            value=0, 
+            command=lambda: self.set_case(0))
+        self.radio_lower.pack(side=tk.LEFT)
+        self.radio_capital = tk.Radiobutton(
+            self.case_frame, 
+            text="Capitalized", 
+            variable=self.case_var, 
+            value=1, 
+            command=lambda: self.set_case(1))
+        self.radio_capital.pack(side=tk.LEFT)
+        self.radio_upper = tk.Radiobutton(
+            self.case_frame, 
+            text="Uppercase", 
+            variable=self.case_var, 
+            value=2, 
+            command=lambda: self.set_case(2))
+        self.radio_upper.pack(side=tk.LEFT)
 
         self.rule_frame = tk.LabelFrame(root)
         self.rule_frame.pack()

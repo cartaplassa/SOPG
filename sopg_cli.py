@@ -5,7 +5,7 @@ import logging
 
 class Password():
     def leetify(self, word: str) -> str():
-        leetified = word.replace('-','').lower().capitalize()
+        leetified = word.replace('-','')
         for before, after in self.leetrules.items():
             leetified = leetified.replace(before, after)
         return leetified
@@ -13,26 +13,39 @@ class Password():
     def new_sequence(self, source: str) -> list:
         return [each for each in source.replace(' ', '').lower().split(',') \
             if each in list(self.pool.keys())]
-    
+
     def set_sequence(self, source: str):
         self.sequence = self.new_sequence(source) if self.new_sequence(source) \
             else self.new_sequence('adj,nou,ver,adv')
 
     def generate(self, source: list[str]) -> str:
-        return self.leetify(random.choice(self.pool[source]))
-    
+        if self.case == 0:
+            return self.leetify(random.choice(self.pool[source]).lower())
+        elif self.case == 1:
+            return self.leetify(random.choice(self.pool[source]).lower().capitalize())
+        elif self.case == 2:
+            return self.leetify(random.choice(self.pool[source]).upper())
+
+    # Changes case of existing password. Will override leetrules.
+    # May not be useful, but it's better to have it as an option.
+    def set_case(self, new_case):
+        self.case = new_case
+        if new_case == 0:
+            self.words = [word.lower() for word in self.words]
+        elif new_case == 1:
+            self.words = [word.lower().capitalize() for word in self.words]
+        elif new_case == 2:
+            self.words = [word.upper() for word in self.words]
+
     # IMPORTANT: operates w/ indices, not w/ numbers
     def regen_one(self, which: int):
         self.words[which] = self.generate(self.sequence[which])
-    
+
     def regen_whole(self):
         self.words = []
         for each in self.sequence:
             self.words.append(self.generate(each))
-    
-    def set_divider(self, new: str):
-        self.divider = new
-    
+
     def __init__(self):
         # Determiners (the, this, my, etc.) can be added as another key
         self.pool = {}
@@ -41,7 +54,7 @@ class Password():
                 self.pool[str(os.path.splitext(each)[0])] = []
                 for line in file:
                     self.pool[str(os.path.splitext(each)[0])].append(line.strip())
-        
+
         self.leetrules = {
             'O': '0',
             'o': '0',
@@ -55,13 +68,14 @@ class Password():
             'l': '!'
         }
         self.divider = '-'
+        self.case = 1
         # Every 'sequence' item corresponds to some key in pool
         self.set_sequence('')
         self.regen_whole()
 
     def __str__(self):
         return self.divider.join(self.words)
-    
+
     def get(self):
         return self.divider.join(self.words)
 
@@ -73,6 +87,16 @@ def print_help(password):
     print(f'current divider: "{password.divider}"')
     print('s: Change the words sequence')
     print(f"current sequence: \"{', '.join(password.sequence)}\"")
+    print('Change the case:')
+    print('l: lowercase      (example)')
+    print('c: capitalized    (Example)')
+    print('u: uppercase/caps (EXAMPLE)')
+    if password.case == 0:
+        print('current case: lowercase')
+    elif password.case == 1:
+        print('current case: capitalized')
+    elif password.case == 2:
+        print('current case: uppercase')
     print('x: Exit the program')
 
 
@@ -101,7 +125,7 @@ def main():
             print(password)
         elif choice == 'd':
             divider = input('New division sequence: ')
-            password.set_divider(divider)
+            password.divider = divider
             print(f'Divider set to "{divider}",')
             print(password)
         elif choice == 's':
@@ -110,8 +134,22 @@ def main():
             print(f"New sequence is \"{', '.join(password.sequence)}\"")
             password.regen_whole()
             print(password)
+        elif choice == 'l':
+            password.set_case(0)
+            print("Case set to lowercase")
+            print(password)
+        elif choice == 'c':
+            password.set_case(1)
+            print("Case set to capitalized")
+            print(password)
+        elif choice == 'u':
+            password.set_case(2)
+            print("Case set to uppercase")
+            print(password)
         else:
             try:
+                # If it's not one of mgmt chars,
+                # then check if it's number of word to regen
                 password.regen_one(int(choice) - 1)
                 print(password)
             except:
