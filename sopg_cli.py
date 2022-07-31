@@ -21,6 +21,7 @@ class Password():
     def generate(self, source: list[str]) -> str:
         return self.leetify(random.choice(self.pool[source]))
     
+    # IMPORTANT: operates w/ indices, not w/ numbers
     def regen_one(self, which: int):
         self.words[which] = self.generate(self.sequence[which])
     
