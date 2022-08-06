@@ -87,7 +87,7 @@ class App:
             # Run 1:
             if first:
                 self.buttons.append(tk.Button(
-                    self.button_frame, width=12,
+                    self.button_frame, width=15,
                     text=self.password.words[0],
                     command=lambda: self.regen_one(0)
                 ))
@@ -101,7 +101,7 @@ class App:
                 ))
                 self.labels[i-1].pack(side=tk.LEFT)
                 self.buttons.append(tk.Button(
-                    self.button_frame, width=12,
+                    self.button_frame, width=15,
                     text=self.password.words[i],
                     command=lambda x = i: self.regen_one(x)
                 ))
@@ -121,7 +121,7 @@ class App:
         self.button_frame = tk.Frame(root, padx=10, pady=10)
         self.button_frame.pack()
         self.management_frame = tk.LabelFrame(root, padx=10)
-        self.management_frame.pack(ipadx=3)
+        self.management_frame.pack(ipadx=3,pady=10)
         self.structure_frame = tk.Frame(root)
         self.structure_frame.pack()
 
@@ -155,7 +155,7 @@ class App:
         self.divider_field.pack()
 
         self.case_frame = tk.LabelFrame(root)
-        self.case_frame.pack()
+        self.case_frame.pack(pady=10)
         self.case_var = tk.IntVar()
         self.case_var.set(1)
         self.radio_lower = tk.Radiobutton(
@@ -190,7 +190,7 @@ class App:
         self.add_rule('L,l', '!')
 
         add_rule_button = tk.Button(root, text="+", width=36, command=self.add_rule)
-        add_rule_button.pack()
+        add_rule_button.pack(pady=(0,10))
 
         self.buttons = []
         self.labels = []
