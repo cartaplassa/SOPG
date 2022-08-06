@@ -1,5 +1,5 @@
 import tkinter as tk
-import sopg_cli as core
+import core
 
 
 class App:
