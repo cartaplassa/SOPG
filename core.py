@@ -43,7 +43,19 @@ class Password():
         # ][new_case]
         # Same but blursed
 
-    # IMPORTANT: operates w/ indices, not w/ numbers
+    def update_dividers(self):
+        if self.header_flag == 1:
+            self.header = random.choice(self.special_chars)
+        if self.divider_flag == 1:
+            self.divider = random.choice(self.special_chars)
+        elif self.divider_flag == 2:
+            self.divider = self.header
+        if self.tail_flag == 1:
+            self.tail = random.choice(self.special_chars)
+        elif self.tail_flag == 2:
+            self.tail = self.header
+
+    # Operates w/ indices, not w/ numbers
     def regen_one(self, which: int):
         self.words[which] = self.generate(self.sequence[which])
 
@@ -51,7 +63,10 @@ class Password():
         self.words = []
         for each in self.sequence:
             self.words.append(self.generate(each))
+        # Dividers regen only when the whole pword regens, UX-motivated choice
+        self.update_dividers()
 
+    # Default sequence is set in set_sequence()
     def __init__(self):
         # Determiners (the, this, my, etc.) can be added as another key
         self.pool = {}
@@ -73,31 +88,45 @@ class Password():
             'L': '!',
             'l': '!'
         }
+        self.special_chars = r"~!@#$%^&*/|\-+="
+        self.header_flag = 0
+        self.header = '~'
+        self.divider_flag = 0
         self.divider = '-'
+        self.tail_flag = 0
+        self.tail = '#'
+        # self.case variable is int so it can be used as a tuple index
         self.case = 1
         # Every 'sequence' item corresponds to some key in pool dict
         self.set_sequence('')
         self.regen_whole()
 
-    def __str__(self):
-        return self.divider.join(self.words)
-
+    # Used in main.py to CB copy, might require attention later
     def get(self):
-        return self.divider.join(self.words)
+        return ''.join([self.header, self.divider.join(self.words), self.tail])
+
+    def __str__(self):
+        return self.get()
 
 
 def print_help(password):
     print('To regenerate a word, enter its number')
     print('r: Regenerate the whole password')
-    print('d: Change the divider sequence')
-    print(f'current divider: "{password.divider}"')
     print('s: Change the words sequence')
-    print(f"current sequence: \"{', '.join(password.sequence)}\"")
+    print(f"current sequence: {', '.join(password.sequence)}")
     print('Change the case:')
     print('l: lowercase      (example)')
     print('c: capitalized    (Example)')
     print('u: uppercase/caps (EXAMPLE)')
     print(f"current case: {('lowercase', 'capitalize', 'uppercase')[password.case]}")
+    print('p: Change the special characters pool')
+    print(f"current pool: {password.special_chars}")
+    print('h: Change the header sequence, hr: Randomize from pool')
+    print(f"current header:   {password.header if not password.header_flag else 'random'}")
+    print('d: Change the divider sequence, dr: Randomize from pool, dm: Match the header sequence')
+    print(f"current divider: {password.divider if not password.divider_flag else 'random' if password.divider_flag == 1 else 'matches header'}")
+    print('t: Change the tail sequence, tr: Randomize from pool, tm: Match the header sequence')
+    print(f"current tail:     {password.tail if not password.tail_flag else 'random' if password.tail_flag == 1 else 'matches header'}")
     print('x: Exit the program')
 
 
@@ -123,40 +152,56 @@ def main():
     while choice != 'x':
         if choice == 'r':
             password.regen_whole()
-            print(password)
-        elif choice == 'd':
-            divider = input('New division sequence: ')
-            password.divider = divider
-            print(f'Divider set to "{divider}",')
-            print(password)
         elif choice == 's':
-            sequence = input('New words sequence: ')
-            password.set_sequence(sequence)
-            print(f"New sequence is \"{', '.join(password.sequence)}\"")
+            password.set_sequence(input('New words sequence: '))
             password.regen_whole()
-            print(password)
         elif choice == 'l':
             password.set_case(0)
-            print("Case set to lowercase")
-            print(password)
         elif choice == 'c':
             password.set_case(1)
-            print("Case set to capitalized")
-            print(password)
         elif choice == 'u':
             password.set_case(2)
-            print("Case set to uppercase")
-            print(password)
+        elif choice == 'h':
+            password.header_flag = 0
+            password.header = input('New header sequence: ')
+        elif choice == 'hr':
+            password.header_flag = 1
+            password.header = random.choice(password.special_chars)
+            if password.divider_flag == 2:
+                password.divider = password.header
+            if password.tail_flag == 2:
+                password.tail = password.header
+        elif choice == 'd':
+            password.divider_flag = 0
+            password.divider = input('New division sequence: ')
+        elif choice == 'dr':
+            password.divider_flag = 1
+            password.divider = random.choice(password.special_chars)
+        elif choice == 'dm':
+            password.divider_flag = 2
+            password.divider = password.header
+        elif choice == 't':
+            password.tail_flag = 0
+            password.tail = input('New tail sequence: ')
+        elif choice == 'tr':
+            password.tail_flag = 1
+            password.tail = random.choice(password.special_chars)
+        elif choice == 'tm':
+            password.tail_flag = 2
+            password.tail = password.header
+        elif choice == 'p':
+            password.special_chars = input('New special characters pool: ')
         else:
             try:
                 # If it's not one of mgmt chars,
                 # then check if it's number of word to regen
                 password.regen_one(int(choice) - 1)
                 print(password)
+            #TD: Specify error case
             except:
                 print(f'Input "{choice}" unrecognized')
                 print_help(password)
-        print('---')
+        print(password)
         choice = input('User input: ')
 
 
