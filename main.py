@@ -56,6 +56,9 @@ class App:
         self.password.header_flag = self.header_flag.get()
         self.password.divider_flag = self.divider_flag.get()
         self.password.tail_flag = self.tail_flag.get()
+        self.password.header = self.header_field.get()
+        self.password.divider = self.divider_field.get()
+        self.password.tail = self.tail_field.get()
         # .replace part is required for app to recognize the backslashes
         self.password.special_chars = self.special_chars_field.get().replace("\\", "\\\\")
         self.password.update_dividers()
