@@ -48,7 +48,7 @@ If it wasn't the case, try following options:
 
 ## Usage
 
-CLI version: just follow the tooltips. Help message pops up each time an unknown input is registered. So, pressing eg. `h` will call it.
+CLI version: just follow the tooltips. Help message pops up each time an unknown input is registered. So, pressing eg. `q` or `help` will call it.
 
 GUI version: push buttons to do what's written on them, idk. `random` option on headers, dividers and tails will pick random symbol from `Char pool` field.
 

@@ -5,20 +5,36 @@ import logging
 
 class Password():
     def leetify(self, word: str) -> str():
+        """Iterates through the leetrules dictionary, replaces keys with values
+        in a given string.
+        """
         leetified = word.replace('-','')
         for before, after in self.leetrules.items():
             leetified = leetified.replace(before, after)
         return leetified
 
     def new_sequence(self, source: str) -> list:
+        """Checks each word (symbol sequence inside spaces) on whether a
+        wordlist with the same name exists. Appends it to a returned list if so
+        and ignores it otherwise.
+        """
         return [each for each in source.lower().split() \
             if each in list(self.pool.keys())]
 
     def set_sequence(self, source: str):
+        """Expects a string of filenames in `wordlists` folder separated by
+        spaces
+        
+        If the parser doesn't recognize the pattern, default string is used
+        """
         self.sequence = self.new_sequence(source) if self.new_sequence(source) \
             else self.new_sequence('adj nou ver adv')
 
     def generate(self, source: list[str]) -> str:
+        """Picks a random word in a given wordlist.
+        
+        No error handling is implemented. Should only be given a valid source. 
+        """
         if self.case == 'lower':
             return self.leetify(secrets.choice(self.pool[source]).lower())
         elif self.case == 'capital':
@@ -26,9 +42,11 @@ class Password():
         elif self.case == 'upper':
             return self.leetify(secrets.choice(self.pool[source]).upper())
 
-    # Changes case of existing password. Will override leetrules.
-    # May not be useful, but it's better to have it as an option.
     def set_case(self, new_case):
+        """Also changes case of current password. Will override leetrules.
+
+        May not be useful, but it's better to have it as an option.
+        """
         self.case = new_case
         if new_case == 'lower':
             self.words = [word.lower() for word in self.words]
@@ -38,37 +56,51 @@ class Password():
             self.words = [word.upper() for word in self.words]
 
     def update_dividers(self):
+        """Regenerates  only header, dividers, tail
+        """
+        # Header
         if self.header_flag == 'random':
             self.header = secrets.choice(self.special_chars)
+        # Dividers
         if self.divider_flag == 'random':
             self.divider = secrets.choice(self.special_chars)
         elif self.divider_flag == 'match header':
             self.divider = self.header
+        # Tail
         if self.tail_flag == 'random':
             self.tail = secrets.choice(self.special_chars)
         elif self.tail_flag == 'match header':
             self.tail = self.header
 
-    # Operates w/ indices, not w/ numbers
     def regen_one(self, which: int):
+        """Regenerates the word with the index specified in the attribute.
+
+        Operates w/ indices, not w/ numbers.
+
+        Dividers only regen with the whole sequence, UX-motivated choice
+        """
         self.words[which] = self.generate(self.sequence[which])
 
     def regen_whole(self):
+        """Regenerates the whole sequence (every word + header, dividers, tail)
+        """
         self.words = []
         for each in self.sequence:
             self.words.append(self.generate(each))
-        # Dividers don't regen when a single is regened, UX-motivated choice
         self.update_dividers()
 
-    # Default sequence is set in set_sequence()
     def __init__(self):
         self.pool = {}
+        # Opening files, populating pool
         for each in os.listdir('wordlists'):
             with open(f'wordlists/{each}', 'r') as file:
                 self.pool[str(os.path.splitext(each)[0])] = []
                 for line in file:
                     self.pool[str(os.path.splitext(each)[0])].append(line.strip())
 
+        # Defaults. They should be grouped somewhere else, but how exactly?
+        # In a dictionary, nested class or something else?
+        # Default sequence is set in set_sequence()
         self.leetrules = {
             'O': '0',
             'o': '0',
@@ -89,7 +121,8 @@ class Password():
         self.tail_flag = 'custom'
         self.tail = '#'
         self.case = 'capital'
-        # Every 'sequence' item corresponds to some key in pool dict
+        # Every `sequence` item corresponds to some key in pool dict
+        # That means also to a filename in `wordlists/`
         self.set_sequence('')
         self.regen_whole()
 
@@ -204,13 +237,18 @@ def main():
                 # then check if it's number of word to regen
                 password.regen_one(int(choice) - 1)
                 print(password)
-            #TD: Specify error case
-            except:
+            # Choice is an int, but out of range
+            except IndexError:
+                print(f'Tried to regen {choice} out of {len(password.words)} words')
+            # Choice is a str, but not recognized
+            except ValueError:
                 print(f'Input "{choice}" unrecognized')
                 print_help(password)
         
+        print('Current password:')
         print(password)
         choice = input('User input: ')
+        print('_____________________________________________________________')
 
 
 if __name__ == '__main__':
