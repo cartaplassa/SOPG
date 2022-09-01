@@ -1,4 +1,4 @@
-import random
+import secrets
 import os
 import logging
 
@@ -11,48 +11,42 @@ class Password():
         return leetified
 
     def new_sequence(self, source: str) -> list:
-        return [each for each in source.replace(' ', '').lower().split(',') \
+        return [each for each in source.lower().split() \
             if each in list(self.pool.keys())]
 
     def set_sequence(self, source: str):
         self.sequence = self.new_sequence(source) if self.new_sequence(source) \
-            else self.new_sequence('adj,nou,ver,adv')
+            else self.new_sequence('adj nou ver adv')
 
     def generate(self, source: list[str]) -> str:
-        if self.case == 0:
-            return self.leetify(random.choice(self.pool[source]).lower())
-        elif self.case == 1:
-            return self.leetify(random.choice(self.pool[source]).lower().capitalize())
-        elif self.case == 2:
-            return self.leetify(random.choice(self.pool[source]).upper())
+        if self.case == 'lower':
+            return self.leetify(secrets.choice(self.pool[source]).lower())
+        elif self.case == 'capital':
+            return self.leetify(secrets.choice(self.pool[source]).lower().capitalize())
+        elif self.case == 'upper':
+            return self.leetify(secrets.choice(self.pool[source]).upper())
 
     # Changes case of existing password. Will override leetrules.
     # May not be useful, but it's better to have it as an option.
     def set_case(self, new_case):
         self.case = new_case
-        if new_case == 0:
+        if new_case == 'lower':
             self.words = [word.lower() for word in self.words]
-        elif new_case == 1:
+        elif new_case == 'capital':
             self.words = [word.lower().capitalize() for word in self.words]
-        elif new_case == 2:
+        elif new_case == 'upper':
             self.words = [word.upper() for word in self.words]
-        # self.words = [
-        #     [word.lower() for word in self.words],
-        #     [word.lower().capitalize() for word in self.words],
-        #     [word.upper() for word in self.words]
-        # ][new_case]
-        # Same but blursed
 
     def update_dividers(self):
-        if self.header_flag == 1:
-            self.header = random.choice(self.special_chars)
-        if self.divider_flag == 1:
-            self.divider = random.choice(self.special_chars)
-        elif self.divider_flag == 2:
+        if self.header_flag == 'random':
+            self.header = secrets.choice(self.special_chars)
+        if self.divider_flag == 'random':
+            self.divider = secrets.choice(self.special_chars)
+        elif self.divider_flag == 'match header':
             self.divider = self.header
-        if self.tail_flag == 1:
-            self.tail = random.choice(self.special_chars)
-        elif self.tail_flag == 2:
+        if self.tail_flag == 'random':
+            self.tail = secrets.choice(self.special_chars)
+        elif self.tail_flag == 'match header':
             self.tail = self.header
 
     # Operates w/ indices, not w/ numbers
@@ -63,12 +57,11 @@ class Password():
         self.words = []
         for each in self.sequence:
             self.words.append(self.generate(each))
-        # Dividers regen only when the whole pword regens, UX-motivated choice
+        # Dividers don't regen when a single is regened, UX-motivated choice
         self.update_dividers()
 
     # Default sequence is set in set_sequence()
     def __init__(self):
-        # Determiners (the, this, my, etc.) can be added as another key
         self.pool = {}
         for each in os.listdir('wordlists'):
             with open(f'wordlists/{each}', 'r') as file:
@@ -89,14 +82,13 @@ class Password():
             'l': '!'
         }
         self.special_chars = r"~!@#$%^&*/|\-+="
-        self.header_flag = 0
+        self.header_flag = 'custom'
         self.header = '~'
-        self.divider_flag = 0
+        self.divider_flag = 'custom'
         self.divider = '-'
-        self.tail_flag = 0
+        self.tail_flag = 'custom'
         self.tail = '#'
-        # self.case variable is int so it can be used as a tuple index
-        self.case = 1
+        self.case = 'capital'
         # Every 'sequence' item corresponds to some key in pool dict
         self.set_sequence('')
         self.regen_whole()
@@ -118,15 +110,15 @@ def print_help(password):
     print('l: lowercase      (example)')
     print('c: capitalized    (Example)')
     print('u: uppercase/caps (EXAMPLE)')
-    print(f"current case: {('lowercase', 'capitalize', 'uppercase')[password.case]}")
+    print(f"current case: {password.case}")
     print('p: Change the special characters pool')
     print(f"current pool: {password.special_chars}")
     print('h: Change the header sequence, hr: Randomize from pool')
-    print(f"current header:   {password.header if not password.header_flag else 'random'}")
+    print(f"current header:   {password.header if password.header_flag == 'custom' else 'random'}")
     print('d: Change the divider sequence, dr: Randomize from pool, dm: Match the header sequence')
-    print(f"current divider: {password.divider if not password.divider_flag else 'random' if password.divider_flag == 1 else 'matches header'}")
+    print(f"current divider: {password.divider if password.divider_flag == 'custom' else password.divider_flag}")
     print('t: Change the tail sequence, tr: Randomize from pool, tm: Match the header sequence')
-    print(f"current tail:     {password.tail if not password.tail_flag else 'random' if password.tail_flag == 1 else 'matches header'}")
+    print(f"current tail:     {password.tail if password.tail_flag == 'custom' else password.tail_flag}")
     print('x: Exit the program')
 
 
@@ -150,47 +142,62 @@ def main():
     password = Password()
     print_help(password)
     while choice != 'x':
+
         if choice == 'r':
             password.regen_whole()
+        
         elif choice == 's':
             password.set_sequence(input('New words sequence: '))
             password.regen_whole()
+        
         elif choice == 'l':
-            password.set_case(0)
+            password.set_case('lower')
+        
         elif choice == 'c':
-            password.set_case(1)
+            password.set_case('capital')
+        
         elif choice == 'u':
-            password.set_case(2)
+            password.set_case('upper')
+        
         elif choice == 'h':
-            password.header_flag = 0
+            password.header_flag = 'custom'
             password.header = input('New header sequence: ')
+        
         elif choice == 'hr':
-            password.header_flag = 1
-            password.header = random.choice(password.special_chars)
-            if password.divider_flag == 2:
+            password.header_flag = 'random'
+            password.header = secrets.choice(password.special_chars)
+            if password.divider_flag == 'match header':
                 password.divider = password.header
-            if password.tail_flag == 2:
+            if password.tail_flag == 'match header':
                 password.tail = password.header
+        
         elif choice == 'd':
-            password.divider_flag = 0
+            password.divider_flag = 'custom'
             password.divider = input('New division sequence: ')
+        
         elif choice == 'dr':
-            password.divider_flag = 1
-            password.divider = random.choice(password.special_chars)
+            password.divider_flag = 'random'
+            password.divider = secrets.choice(password.special_chars)
+        
         elif choice == 'dm':
-            password.divider_flag = 2
+            password.divider_flag = 'match header'
             password.divider = password.header
+        
         elif choice == 't':
-            password.tail_flag = 0
+            password.tail_flag = 'custom'
             password.tail = input('New tail sequence: ')
+        
         elif choice == 'tr':
-            password.tail_flag = 1
-            password.tail = random.choice(password.special_chars)
+            password.tail_flag = 'random'
+            password.tail = secrets.choice(password.special_chars)
+        
         elif choice == 'tm':
-            password.tail_flag = 2
+            password.tail_flag = 'match header'
             password.tail = password.header
+        
         elif choice == 'p':
             password.special_chars = input('New special characters pool: ')
+        
         else:
             try:
                 # If it's not one of mgmt chars,
@@ -201,6 +208,7 @@ def main():
             except:
                 print(f'Input "{choice}" unrecognized')
                 print_help(password)
+        
         print(password)
         choice = input('User input: ')
 

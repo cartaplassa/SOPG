@@ -96,12 +96,9 @@ class App:
         ))
         self.labels[0].pack(side=tk.LEFT)
         # Button generator for N buttons:
-        # Run 1: generate button
         first = True
-        # Runs 2 to N: generate divider+button
-        # Run N+1: generate 'Regen PW' button
         for i in range(len(self.password.words)):
-            # Run 1:
+            # Run 1: generate button
             if first:
                 self.buttons.append(tk.Button(
                     self.button_frame, width=15,
@@ -110,7 +107,7 @@ class App:
                 ))
                 self.buttons[0].pack(side=tk.LEFT)
                 first = False
-            # Runs 2 to N:
+            # Runs 2 to N: generate divider+button
             else:
                 self.labels.append(tk.Label(
                     self.button_frame,
@@ -128,14 +125,14 @@ class App:
             text=self.password.tail
         ))
         self.labels[len(self.password.words)].pack(side=tk.LEFT)
-        # Run N+1
+        # Run N+1: generate 'Regen PW' button
         self.buttons.append(tk.Button(
             self.management_frame,
             text="Regenerate",
             command=lambda: self.regen_whole()
         ))
         self.buttons[-1].grid(row=0,column=0)
-        # Done
+        # Button generation completed
 
     def __init__(self, root):
         self.password = core.Password()
@@ -163,128 +160,141 @@ class App:
         self.leetify_box.grid(row=0,column=2)
         self.leetify_box.select()
 
-
         self.structure_frame = tk.Frame(root)
         self.structure_frame.pack()
 
         self.sequence_frame = tk.LabelFrame(self.structure_frame, text='Sequence')
         self.sequence_frame.pack(side=tk.LEFT)
         self.sequence_field = tk.Entry(self.sequence_frame, width=29)
-        self.sequence_field.insert(0, ','.join(self.password.sequence))
+        self.sequence_field.insert(0, ' '.join(self.password.sequence))
         self.sequence_field.pack(padx=1)
 
         # Special symbols in the beginning of the password are strongly recommended
-        # Header, dividers and tails combined are symbols
+        # Frame for headers, dividers and tails
         self.symbols_frame = tk.Frame(root)
         self.symbols_frame.pack()
 
-        self.header_flag = tk.IntVar()
-        self.header_flag.set(0)
+        # Header - custom
+        self.header_flag = tk.StringVar()
+        self.header_flag.set('custom')
         self.header_custom = tk.LabelFrame(self.symbols_frame, text='Header')
         self.header_custom.grid(row=0, column=0)
         self.header_custom_radio = tk.Radiobutton(
             self.header_custom,
             variable=self.header_flag, 
-            value=0, 
+            value='custom', 
             command=self.update_dividers)
         self.header_custom_radio.pack(side=tk.LEFT)
         self.header_field = tk.Entry(self.header_custom, width=7)
         self.header_field.insert(0, '~')
         self.header_field.pack(side=tk.LEFT)
+        # Header - random
         self.header_random = tk.Radiobutton(
             self.symbols_frame,
             text="Random",
             variable=self.header_flag, 
-            value=1, 
+            value='random', 
             command=self.update_dividers)
         self.header_random.grid(row=0, column=1, padx=(5,10), pady=(15,0))
+        # Special chars field
         self.special_chars = tk.LabelFrame(self.symbols_frame, text='Char pool')
         self.special_chars.grid(row=0, column=2)
         self.special_chars_field = tk.Entry(self.special_chars, width=14)
-        self.special_chars_field.insert(0, r"~!@#$%^&*/|\-+=")
+        self.special_chars_field.insert(0, self.password.special_chars)
         self.special_chars_field.pack()
 
-        self.divider_flag = tk.IntVar()
-        self.divider_flag.set(0)
+        # Dividers - custom
+        self.divider_flag = tk.StringVar()
+        self.divider_flag.set('custom')
         self.divider_custom = tk.LabelFrame(self.symbols_frame, text='Divider')
         self.divider_custom.grid(row=1, column=0)
         self.divider_custom_radio = tk.Radiobutton(
             self.divider_custom,
             variable=self.divider_flag, 
-            value=0, 
+            value='custom', 
             command=self.update_dividers)
         self.divider_custom_radio.pack(side=tk.LEFT)
         self.divider_field = tk.Entry(self.divider_custom, width=7)
         self.divider_field.insert(0, self.password.divider)
         self.divider_field.pack()
+        # Dividers - random
         self.divider_random = tk.Radiobutton(
             self.symbols_frame,
             text="Random",
             variable=self.divider_flag, 
-            value=1, 
+            value='random', 
             command=self.update_dividers)
         self.divider_random.grid(row=1, column=1, padx=(5,10), pady=(15,0))
+        # Dividers - match header
         self.divider_match = tk.Radiobutton(
             self.symbols_frame,
             text="Match header",
             variable=self.divider_flag, 
-            value=2, 
+            value='match header', 
             command=self.update_dividers)
         self.divider_match.grid(row=1, column=2, padx=(5,10), pady=(15,0))
 
-        self.tail_flag = tk.IntVar()
-        self.tail_flag.set(0)
+        # Tail - custom
+        self.tail_flag = tk.StringVar()
+        self.tail_flag.set('custom')
         self.tail_custom = tk.LabelFrame(self.symbols_frame, text='Tail')
         self.tail_custom.grid(row=2, column=0)
         self.tail_custom_radio = tk.Radiobutton(
             self.tail_custom,
             variable=self.tail_flag, 
-            value=0, 
+            value='custom', 
             command=self.update_dividers)
         self.tail_custom_radio.pack(side=tk.LEFT)
         self.tail_field = tk.Entry(self.tail_custom, width=7)
         self.tail_field.insert(0, '#')
         self.tail_field.pack()
+        # Tail - random
         self.tail_random = tk.Radiobutton(
             self.symbols_frame,
             text="Random",
             variable=self.tail_flag, 
-            value=1, 
+            value='random', 
             command=self.update_dividers)
         self.tail_random.grid(row=2, column=1, padx=(5,10), pady=(15,0))
+        # Tail - match header
         self.tail_match = tk.Radiobutton(
             self.symbols_frame,
             text="Match header",
             variable=self.tail_flag, 
-            value=2, 
+            value='match header', 
             command=self.update_dividers)
         self.tail_match.grid(row=2, column=2, padx=(5,10), pady=(15,0))
 
+        # Case frame
         self.case_frame = tk.LabelFrame(root)
         self.case_frame.pack(ipadx=10, ipady=10, pady=10)
-        self.case_var = tk.IntVar()
-        self.case_var.set(1)
+        self.case_var = tk.StringVar()
+        self.case_var.set('capital')
+        # Lowercase
         self.radio_lower = tk.Radiobutton(
             self.case_frame,
             text="Lowercase",
             variable=self.case_var,
-            value=0,
-            command=lambda: self.set_case(0))
+            value='lower',
+            command=lambda: self.set_case('lower'))
         self.radio_lower.pack(side=tk.LEFT)
+        # Capitalized
         self.radio_capital = tk.Radiobutton(
             self.case_frame,
             text="Capitalized",
             variable=self.case_var,
-            value=1,
-            command=lambda: self.set_case(1))
+            value='capital',
+            command=lambda: self.set_case('capital'))
         self.radio_capital.pack(side=tk.LEFT)
+        # Uppercase
         self.radio_upper = tk.Radiobutton(
             self.case_frame,
             text="Uppercase",
             variable=self.case_var,
-            value=2,
-            command=lambda: self.set_case(2))
+            value='upper',
+            command=lambda: self.set_case('upper'))
         self.radio_upper.pack(side=tk.LEFT)
+
 
         self.rule_frame = tk.LabelFrame(root)
         self.rule_frame.pack()
@@ -300,8 +310,8 @@ class App:
 
         self.buttons = []
         self.labels = []
-        # Should be max possible length in pixels
-        # self.password.words = [20*'W' for each in range(4)]
+        # Should be max possible length in pixels:
+        # self.password.words = [20*'W' for each in range(4)] # DEBUG
         self.update_buttons()
 
 
