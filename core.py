@@ -88,6 +88,12 @@ class Password():
         for each in self.sequence:
             self.words.append(self.generate(each))
         self.update_dividers()
+    
+    def use_passphrase(self, passphrase: str):
+        self.words = []
+        for each in passphrase.split():
+            self.words.append(self.leetify(each))
+        self.update_dividers()
 
     def __init__(self):
         self.pool = {}
@@ -121,6 +127,7 @@ class Password():
         self.tail_flag = 'custom'
         self.tail = '#'
         self.case = 'capital'
+        self.passphrase = 'Custom passphrase goes here'
         # Every `sequence` item corresponds to some key in pool dict
         # That means also to a filename in `wordlists/`
         self.set_sequence('')
@@ -139,12 +146,14 @@ def print_help(password):
     print('r: Regenerate the whole password')
     print('s: Change the words sequence')
     print(f"current sequence: {', '.join(password.sequence)}")
+    print('p: Use a passphrase, ps: Set a passphrase')
+    print(f"current passphrase: {password.passphrase}")
     print('Change the case:')
-    print('l: lowercase      (example)')
-    print('c: capitalized    (Example)')
-    print('u: uppercase/caps (EXAMPLE)')
+    # print('l: lowercase      (example)')
+    # print('c: capitalized    (Example)')
+    # print('u: uppercase/caps (EXAMPLE)')
     print(f"current case: {password.case}")
-    print('p: Change the special characters pool')
+    print('sc: Change the special characters pool')
     print(f"current pool: {password.special_chars}")
     print('h: Change the header sequence, hr: Randomize from pool')
     print(f"current header:   {password.header if password.header_flag == 'custom' else 'random'}")
@@ -182,6 +191,13 @@ def main():
         elif choice == 's':
             password.set_sequence(input('New words sequence: '))
             password.regen_whole()
+        
+        elif choice == 'p':
+            password.use_passphrase(password.passphrase)
+        
+        elif choice == 'ps':
+            password.passphrase = input('New passphrase: ')
+            password.use_passphrase(password.passphrase)
         
         elif choice == 'l':
             password.set_case('lower')
@@ -228,7 +244,7 @@ def main():
             password.tail_flag = 'match header'
             password.tail = password.header
         
-        elif choice == 'p':
+        elif choice == 'sc':
             password.special_chars = input('New special characters pool: ')
         
         else:

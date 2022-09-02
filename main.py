@@ -3,7 +3,6 @@ import core
 
 
 class App:
-    # 
     class Rule(tk.Frame):
         def __init__(self, parent, on_delete=None, rule_from='', rule_to=''):
             """`Rule` is a special frame that have two entry fields, values in
@@ -132,6 +131,11 @@ class App:
         self.password.regen_whole()
         self.update_buttons()
 
+    def use_passphrase(self):
+        self.update_param()
+        self.password.use_passphrase(self.passphrase_field.get())
+        self.update_buttons()
+
     def update_buttons(self):
         """Quick breakdown:
 
@@ -161,7 +165,7 @@ class App:
             # Run 1: generate button
             if first:
                 self.buttons.append(tk.Button(
-                    self.button_frame, width=15,
+                    self.button_frame, # width=15, # Fixed width
                     text=self.password.words[0],
                     command=lambda: self.regen_one(0)
                 ))
@@ -175,7 +179,7 @@ class App:
                 ))
                 self.labels[i].pack(side=tk.LEFT)
                 self.buttons.append(tk.Button(
-                    self.button_frame, width=15,
+                    self.button_frame, # width=15, # Fixed width
                     text=self.password.words[i],
                     command=lambda x = i: self.regen_one(x)
                 ))
@@ -196,6 +200,19 @@ class App:
 
     def __init__(self, root):
         self.password = core.Password()
+
+        # PASSPHRASE FRAME
+        self.passphrase_frame = tk.LabelFrame(root, text='Custom passphrase')
+        self.passphrase_frame.pack(pady=10)
+        self.passphrase_field = tk.Entry(self.passphrase_frame, width=35)
+        self.passphrase_field.insert(0, self.password.passphrase)
+        self.passphrase_field.pack(padx=1, side=tk.LEFT)
+        self.passphrase_button = tk.Button(
+            self.passphrase_frame,
+            text='Use',
+            command=self.use_passphrase
+        )
+        self.passphrase_button.pack(side=tk.LEFT)
 
         self.button_frame = tk.Frame(root, padx=10, pady=10)
         self.button_frame.pack()
@@ -228,18 +245,17 @@ class App:
         # SEQUENCE FRAME, inside structure, currently only holds one field
         self.sequence_frame = tk.LabelFrame(
             self.structure_frame, 
-            text='Sequence'
+            text='Generation from sequence'
         )
-        self.sequence_frame.pack(side=tk.LEFT)
-        # Sequence field
-        self.sequence_field = tk.Entry(self.sequence_frame, width=29)
+        self.sequence_frame.pack()
+        self.sequence_field = tk.Entry(self.sequence_frame, width=35)
         self.sequence_field.insert(0, ' '.join(self.password.sequence))
-        self.sequence_field.pack(padx=1)
+        self.sequence_field.pack(padx=1, side=tk.LEFT)
 
         # SYMBOLS TABLE-FRAME:
-        # Header:    | Custom (entry) | Random (radio) | Chars (entry) |
-        # Dividers:  | Custom (entry) | Random (radio) | Match (radio) |
-        # Tail:      | Custom (entry) | Random (radio) | Match (radio) |
+        # Header:    | Custom (radio, entry) | Random (radio) | Chars (entry) |
+        # Dividers:  | Custom (radio, entry) | Random (radio) | Match (radio) |
+        # Tail:      | Custom (radio, entry) | Random (radio) | Match (radio) |
         self.symbols_frame = tk.Frame(root)
         self.symbols_frame.pack()
         # Header - Custom
