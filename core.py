@@ -1,17 +1,36 @@
 import secrets
 import os
 import logging
+import json
 
 
 class Password():
+    class Rule:
+        def __init__(self, rule_from='', rule_to=''):
+            self.rule_from = rule_from
+            self.rule_to = rule_to
+        
+        def get(self):
+            return {rule: self.rule_to for rule in self.rule_from.split(',')}
+
+
     def leetify(self, word: str) -> str():
         """Iterates through the leetrules dictionary, replaces keys with values
         in a given string.
         """
         leetified = word.replace('-','')
-        for before, after in self.leetrules.items():
+        for before, after in self.result(self.rule_list).items():
             leetified = leetified.replace(before, after)
         return leetified
+
+    def result(self, rule_list: list[Rule]) -> dict[str, str]:
+        """Iterates through all replacement rules and combines them to a single
+        dictionary. Uses `Rule`'s .get() method.
+        """
+        result_dict = {}
+        for each in rule_list:
+            result_dict = {**result_dict, **each.get()}
+        return result_dict
 
     def new_sequence(self, source: str) -> list:
         """Checks each word (symbol sequence inside spaces) on whether a
@@ -25,21 +44,31 @@ class Password():
         """Expects a string of filenames in `wordlists` folder separated by
         spaces
         
-        If the parser doesn't recognize the pattern, default string is used
+        If the parser doesn't recognize the pattern, no changes occur
         """
-        self.sequence = self.new_sequence(source) if self.new_sequence(source) \
-            else self.new_sequence('adj nou ver adv')
+        if self.new_sequence(source):
+            self.config['sequence'] = source
+            self.sequence = self.new_sequence(source)
+
+    def set_special_chars(self, source: str):
+        """Expects a string of filenames in `wordlists` folder separated by
+        spaces
+        
+        If the parser doesn't recognize the pattern, no changes occur
+        """
+        if source:
+            self.config['special_chars'] = source
 
     def generate(self, source: list[str]) -> str:
         """Picks a random word in a given wordlist.
         
         No error handling is implemented. Should only be given a valid source. 
         """
-        if self.case == 'lower':
+        if self.config['case'] == 'lower':
             return self.leetify(secrets.choice(self.pool[source]).lower())
-        elif self.case == 'capital':
+        elif self.config['case'] == 'capital':
             return self.leetify(secrets.choice(self.pool[source]).lower().capitalize())
-        elif self.case == 'upper':
+        elif self.config['case'] == 'upper':
             return self.leetify(secrets.choice(self.pool[source]).upper())
 
     def set_case(self, new_case):
@@ -47,7 +76,7 @@ class Password():
 
         May not be useful, but it's better to have it as an option.
         """
-        self.case = new_case
+        self.config['case'] = new_case
         if new_case == 'lower':
             self.words = [word.lower() for word in self.words]
         elif new_case == 'capital':
@@ -59,18 +88,18 @@ class Password():
         """Regenerates  only header, dividers, tail
         """
         # Header
-        if self.header_flag == 'random':
-            self.header = secrets.choice(self.special_chars)
+        if self.config['header_flag'] == 'random':
+            self.config['header'] = secrets.choice(self.config['special_chars'])
         # Dividers
-        if self.divider_flag == 'random':
-            self.divider = secrets.choice(self.special_chars)
-        elif self.divider_flag == 'match header':
-            self.divider = self.header
+        if self.config['divider_flag'] == 'random':
+            self.config['divider'] = secrets.choice(self.config['special_chars'])
+        elif self.config['divider_flag'] == 'match header':
+            self.config['divider'] = self.config['header']
         # Tail
-        if self.tail_flag == 'random':
-            self.tail = secrets.choice(self.special_chars)
-        elif self.tail_flag == 'match header':
-            self.tail = self.header
+        if self.config['tail_flag'] == 'random':
+            self.config['tail'] = secrets.choice(self.config['special_chars'])
+        elif self.config['tail_flag'] == 'match header':
+            self.config['tail'] = self.config['header']
 
     def regen_one(self, which: int):
         """Regenerates the word with the index specified in the attribute.
@@ -103,31 +132,12 @@ class Password():
                 self.pool[str(os.path.splitext(each)[0])] = []
                 for line in file:
                     self.pool[str(os.path.splitext(each)[0])].append(line.strip())
-
-        # Defaults. They should be grouped somewhere else, but how exactly?
-        # In a dictionary, nested class or something else?
-        # Default sequence is set in set_sequence()
-        self.leetrules = {
-            'O': '0',
-            'o': '0',
-            'I': '1',
-            'i': '1',
-            'B': '8',
-            'b': '8',
-            'S': '$',
-            's': '$',
-            'L': '!',
-            'l': '!'
-        }
-        self.special_chars = r"~!@#$%^&*/|\-+="
-        self.header_flag = 'custom'
-        self.header = '~'
-        self.divider_flag = 'custom'
-        self.divider = '-'
-        self.tail_flag = 'custom'
-        self.tail = '#'
-        self.case = 'capital'
-        self.passphrase = 'Custom passphrase goes here'
+        with open("config.json", "r") as file:
+            self.config = json.load(file)
+        self.sequence = self.new_sequence(self.config['sequence'])
+        self.rule_list = []
+        for each_from, each_to in self.config["rules_init"].items():
+            self.rule_list.append(self.Rule(each_from, each_to))
         # Every `sequence` item corresponds to some key in pool dict
         # That means also to a filename in `wordlists/`
         self.set_sequence('')
@@ -135,7 +145,11 @@ class Password():
 
     # Used in main.py to CB copy, might require attention later
     def get(self):
-        return ''.join([self.header, self.divider.join(self.words), self.tail])
+        return ''.join([
+            self.config['header'], 
+            self.config['divider'].join(self.words), 
+            self.config['tail']
+        ])
 
     def __str__(self):
         return self.get()
@@ -147,20 +161,21 @@ def print_help(password):
     print('s: Change the words sequence')
     print(f"current sequence: {', '.join(password.sequence)}")
     print('p: Use a passphrase, ps: Set a passphrase')
-    print(f"current passphrase: {password.passphrase}")
+    print(f"current passphrase: {password.config['passphrase']}")
     print('Change the case:')
     # print('l: lowercase      (example)')
     # print('c: capitalized    (Example)')
     # print('u: uppercase/caps (EXAMPLE)')
-    print(f"current case: {password.case}")
+    print(f"current case: {password.config['case']}")
     print('sc: Change the special characters pool')
-    print(f"current pool: {password.special_chars}")
+    print(f"current pool: {password.config['special_chars']}")
     print('h: Change the header sequence, hr: Randomize from pool')
-    print(f"current header:   {password.header if password.header_flag == 'custom' else 'random'}")
+    print(f"current header:   {password.config['header'] if password.config['header_flag'] == 'custom' else 'random'}")
     print('d: Change the divider sequence, dr: Randomize from pool, dm: Match the header sequence')
-    print(f"current divider: {password.divider if password.divider_flag == 'custom' else password.divider_flag}")
+    print(f"current divider: {password.config['divider'] if password.config['divider_flag'] == 'custom' else password.config['divider_flag']}")
     print('t: Change the tail sequence, tr: Randomize from pool, tm: Match the header sequence')
-    print(f"current tail:     {password.tail if password.tail_flag == 'custom' else password.tail_flag}")
+    print(f"current tail:     {password.config['tail'] if password.config['tail_flag'] == 'custom' else password.config['tail_flag']}")
+    print('dump: Save configuration')
     print('x: Exit the program')
 
 
@@ -193,11 +208,11 @@ def main():
             password.regen_whole()
         
         elif choice == 'p':
-            password.use_passphrase(password.passphrase)
+            password.use_passphrase(password.config['passphrase'])
         
         elif choice == 'ps':
-            password.passphrase = input('New passphrase: ')
-            password.use_passphrase(password.passphrase)
+            password.config['passphrase'] = input('New passphrase: ')
+            password.use_passphrase(password.config['passphrase'])
         
         elif choice == 'l':
             password.set_case('lower')
@@ -209,50 +224,53 @@ def main():
             password.set_case('upper')
         
         elif choice == 'h':
-            password.header_flag = 'custom'
-            password.header = input('New header sequence: ')
+            password.config['header_flag'] = 'custom'
+            password.config['header'] = input('New header sequence: ')
         
         elif choice == 'hr':
-            password.header_flag = 'random'
-            password.header = secrets.choice(password.special_chars)
-            if password.divider_flag == 'match header':
-                password.divider = password.header
-            if password.tail_flag == 'match header':
-                password.tail = password.header
+            password.config['header_flag'] = 'random'
+            password.config['header'] = secrets.choice(password.config['special_chars'])
+            if password.config['divider_flag'] == 'match header':
+                password.config['divider'] = password.config['header']
+            if password.config['tail_flag'] == 'match header':
+                password.config['tail'] = password.config['header']
         
         elif choice == 'd':
-            password.divider_flag = 'custom'
-            password.divider = input('New division sequence: ')
+            password.config['divider_flag'] = 'custom'
+            password.config['divider'] = input('New division sequence: ')
         
         elif choice == 'dr':
-            password.divider_flag = 'random'
-            password.divider = secrets.choice(password.special_chars)
+            password.config['divider_flag'] = 'random'
+            password.config['divider'] = secrets.choice(password.config['special_chars'])
         
         elif choice == 'dm':
-            password.divider_flag = 'match header'
-            password.divider = password.header
+            password.config['divider_flag'] = 'match header'
+            password.config['divider'] = password.config['header']
         
         elif choice == 't':
-            password.tail_flag = 'custom'
-            password.tail = input('New tail sequence: ')
+            password.config['tail_flag'] = 'custom'
+            password.config['tail'] = input('New tail sequence: ')
         
         elif choice == 'tr':
-            password.tail_flag = 'random'
-            password.tail = secrets.choice(password.special_chars)
+            password.config['tail_flag'] = 'random'
+            password.config['tail'] = secrets.choice(password.config['special_chars'])
         
         elif choice == 'tm':
-            password.tail_flag = 'match header'
-            password.tail = password.header
+            password.config['tail_flag'] = 'match header'
+            password.config['tail'] = password.config['header']
         
         elif choice == 'sc':
-            password.special_chars = input('New special characters pool: ')
+            password.set_special_chars(input('New special characters pool: '))
         
+        elif choice == 'dump':
+            with open("config.json", "w") as f:
+                json.dump(password.config, f, indent=4)
+
         else:
             try:
                 # If it's not one of mgmt chars,
                 # then check if it's number of word to regen
                 password.regen_one(int(choice) - 1)
-                print(password)
             # Choice is an int, but out of range
             except IndexError:
                 print(f'Tried to regen {choice} out of {len(password.words)} words')
