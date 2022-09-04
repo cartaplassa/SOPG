@@ -1,0 +1,19 @@
+{
+    "sequence": "adj nou ver adv",
+    "special_chars": "~!@#$%^&*/|\\-+=",
+    "rules_init": {
+        "O,o": "0",
+        "I,i": "1",
+        "B,b": "8",
+        "S,s": "$",
+        "L,l": "!"
+    },
+    "header_flag": "custom",
+    "header": "~",
+    "divider_flag": "custom",
+    "divider": "-",
+    "tail_flag": "custom",
+    "tail": "#",
+    "case": "capital",
+    "passphrase": "Custom passphrase goes here"
+}

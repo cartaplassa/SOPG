@@ -1,9 +1,10 @@
 import tkinter as tk
 import core
+import json
 
 
 class App:
-    class Rule(tk.Frame):
+    class Rule(core.Password.Rule, tk.Frame):
         def __init__(self, parent, on_delete=None, rule_from='', rule_to=''):
             """`Rule` is a special frame that have two entry fields, values in
             first are replaced with values in second. 
@@ -17,6 +18,7 @@ class App:
             Is used in result() function of parent class
             """
             # Defining
+            core.Password.Rule.__init__(self, rule_from, rule_to)
             tk.Frame.__init__(self, parent)
             self.on_delete = on_delete
             self.checked = tk.BooleanVar()
@@ -66,12 +68,12 @@ class App:
     def remove_rule(self, item):
         """Removes the rule from the list it's stored in
         """
-        self.rule_list.remove(item)
+        self.password.rule_list.remove(item)
 
     def add_rule(self, rule_from='', rule_to=''):
         """Instantiates a rule and puts it in the list
         """
-        self.rule_list.append(self.Rule(
+        self.password.rule_list.append(self.Rule(
             self.rule_frame, 
             self.remove_rule, 
             rule_from, 
@@ -83,7 +85,7 @@ class App:
         dictionary. Uses `Rule`'s .get() method.
         """
         result_dict = {}
-        for each in self.rule_list:
+        for each in self.password.rule_list:
             result_dict = {**result_dict, **each.get()} if each.checked else result_dict
         return result_dict
     # End of Rule functions
@@ -94,45 +96,50 @@ class App:
         self.password.set_case(new_case)
         self.update_buttons()
 
-    def update_dividers(self):
-        """Updates header, dividers and tails w/o regenerating anything else
-        """
-        self.password.header_flag = self.header_flag.get()
-        self.password.divider_flag = self.divider_flag.get()
-        self.password.tail_flag = self.tail_flag.get()
-        self.password.header = self.header_field.get()
-        self.password.divider = self.divider_field.get()
-        self.password.tail = self.tail_field.get()
-        # .replace part is required to recognize the backslashes
-        self.password.special_chars = self.special_chars_field.get().replace("\\", "\\\\")
-        self.password.update_dividers()
-        self.update_buttons()
-
     def to_clipboard(self, root: tk.Tk):
         """Copies the password to clipboard
         """
         root.clipboard_clear()
         root.clipboard_append(self.password.get())
 
-    def update_param(self):
-        """Feeds new configuration to the child password object
+    def update_config(self):
+        """Updates header, dividers and tails w/o regenerating anything else
+        
+        Feeds new configuration to the child password object
         """
-        self.password.leetrules = self.result() if self.leetify_var.get() else {}
+        self.password.config['header_flag'] = self.header_flag.get()
+        self.password.config['divider_flag'] = self.divider_flag.get()
+        self.password.config['tail_flag'] = self.tail_flag.get()
+        self.password.config['header'] = self.header_field.get()
+        self.password.config['divider'] = self.divider_field.get()
+        self.password.config['tail'] = self.tail_field.get()
+        # .replace part is required to recognize the backslashes
+        self.password.config['special_chars'] = self.special_chars_field.get()#.replace("\\", "\\\\")
+        self.password.update_dividers()
+        # self.password.config['rules_init'] = {each.rule_from: each.rule_to for each in self.password.rule_list}
         self.password.set_sequence(self.sequence_field.get())
-        self.password.divider = self.divider_field.get()
+        # update_buttons() is called twice in regen, shouldn't be a problem,
+        # but better solution should be considered
+        self.password.config['rules_init'] = {}
+        for each in self.password.rule_list:
+            if each.entry_from.get():
+                self.password.config['rules_init'].update({
+                    each.entry_from.get(): each.entry_to.get()
+                })
+        self.update_buttons()
 
     def regen_one(self, number: int):
-        self.update_param()
+        self.update_config()
         self.password.regen_one(number)
         self.update_buttons()
 
     def regen_whole(self):
-        self.update_param()
+        self.update_config()
         self.password.regen_whole()
         self.update_buttons()
 
     def use_passphrase(self):
-        self.update_param()
+        self.update_config()
         self.password.use_passphrase(self.passphrase_field.get())
         self.update_buttons()
 
@@ -156,7 +163,7 @@ class App:
         self.labels = []
         self.labels.append(tk.Label(
             self.button_frame,
-            text=self.password.header
+            text=self.password.config['header']
         ))
         self.labels[0].pack(side=tk.LEFT)
         # Button generator for N buttons:
@@ -175,7 +182,7 @@ class App:
             else:
                 self.labels.append(tk.Label(
                     self.button_frame,
-                    text=self.password.divider
+                    text=self.password.config['divider']
                 ))
                 self.labels[i].pack(side=tk.LEFT)
                 self.buttons.append(tk.Button(
@@ -186,7 +193,7 @@ class App:
                 self.buttons[i].pack(side=tk.LEFT)
         self.labels.append(tk.Label(
             self.button_frame,
-            text=self.password.tail
+            text=self.password.config['tail']
         ))
         self.labels[len(self.password.words)].pack(side=tk.LEFT)
         # Run N+1: generate 'Regen PW' button
@@ -198,6 +205,11 @@ class App:
         self.buttons[-1].grid(row=0,column=0)
         # Button generation completed
 
+    def save_config(self):
+        self.update_config()
+        with open("config.json", "w") as f:
+            json.dump(self.password.config, f, indent=4)
+        
     def __init__(self, root):
         self.password = core.Password()
 
@@ -205,7 +217,7 @@ class App:
         self.passphrase_frame = tk.LabelFrame(root, text='Custom passphrase')
         self.passphrase_frame.pack(pady=10)
         self.passphrase_field = tk.Entry(self.passphrase_frame, width=35)
-        self.passphrase_field.insert(0, self.password.passphrase)
+        self.passphrase_field.insert(0, self.password.config['passphrase'])
         self.passphrase_field.pack(padx=1, side=tk.LEFT)
         self.passphrase_button = tk.Button(
             self.passphrase_frame,
@@ -249,7 +261,7 @@ class App:
         )
         self.sequence_frame.pack()
         self.sequence_field = tk.Entry(self.sequence_frame, width=35)
-        self.sequence_field.insert(0, ' '.join(self.password.sequence))
+        self.sequence_field.insert(0, ''.join(self.password.config['sequence']))
         self.sequence_field.pack(padx=1, side=tk.LEFT)
 
         # SYMBOLS TABLE-FRAME:
@@ -267,11 +279,11 @@ class App:
             self.header_custom,
             variable=self.header_flag, 
             value='custom', 
-            command=self.update_dividers
+            command=self.update_config
         )
         self.header_custom_radio.pack(side=tk.LEFT)
         self.header_field = tk.Entry(self.header_custom, width=7)
-        self.header_field.insert(0, '~')
+        self.header_field.insert(0, self.password.config['header'])
         self.header_field.pack(side=tk.LEFT)
         # Header - Random
         self.header_random = tk.Radiobutton(
@@ -279,7 +291,7 @@ class App:
             text="Random",
             variable=self.header_flag, 
             value='random', 
-            command=self.update_dividers
+            command=self.update_config
         )
         self.header_random.grid(row=0, column=1, padx=(5,10), pady=(15,0))
         # Chars
@@ -289,7 +301,7 @@ class App:
         )
         self.special_chars.grid(row=0, column=2)
         self.special_chars_field = tk.Entry(self.special_chars, width=14)
-        self.special_chars_field.insert(0, self.password.special_chars)
+        self.special_chars_field.insert(0, self.password.config['special_chars'])
         self.special_chars_field.pack()
 
         # Dividers - Custom
@@ -301,11 +313,11 @@ class App:
             self.divider_custom,
             variable=self.divider_flag, 
             value='custom', 
-            command=self.update_dividers
+            command=self.update_config
         )
         self.divider_custom_radio.pack(side=tk.LEFT)
         self.divider_field = tk.Entry(self.divider_custom, width=7)
-        self.divider_field.insert(0, self.password.divider)
+        self.divider_field.insert(0, self.password.config['divider'])
         self.divider_field.pack()
         # Dividers - Random
         self.divider_random = tk.Radiobutton(
@@ -313,7 +325,7 @@ class App:
             text="Random",
             variable=self.divider_flag, 
             value='random', 
-            command=self.update_dividers
+            command=self.update_config
         )
         self.divider_random.grid(row=1, column=1, padx=(5,10), pady=(15,0))
         # Dividers - Match header
@@ -322,7 +334,7 @@ class App:
             text="Match header",
             variable=self.divider_flag, 
             value='match header', 
-            command=self.update_dividers
+            command=self.update_config
         )
         self.divider_match.grid(row=1, column=2, padx=(5,10), pady=(15,0))
 
@@ -335,11 +347,11 @@ class App:
             self.tail_custom,
             variable=self.tail_flag, 
             value='custom', 
-            command=self.update_dividers
+            command=self.update_config
         )
         self.tail_custom_radio.pack(side=tk.LEFT)
         self.tail_field = tk.Entry(self.tail_custom, width=7)
-        self.tail_field.insert(0, '#')
+        self.tail_field.insert(0, self.password.config['tail'])
         self.tail_field.pack()
         # Tail - Random
         self.tail_random = tk.Radiobutton(
@@ -347,7 +359,7 @@ class App:
             text="Random",
             variable=self.tail_flag, 
             value='random', 
-            command=self.update_dividers
+            command=self.update_config
         )
         self.tail_random.grid(row=2, column=1, padx=(5,10), pady=(15,0))
         # Tail - Match header
@@ -356,7 +368,7 @@ class App:
             text="Match header",
             variable=self.tail_flag, 
             value='match header', 
-            command=self.update_dividers
+            command=self.update_config
         )
         self.tail_match.grid(row=2, column=2, padx=(5,10), pady=(15,0))
 
@@ -396,12 +408,9 @@ class App:
         # RULE FRAME
         self.rule_frame = tk.LabelFrame(root)
         self.rule_frame.pack()
-        self.rule_list = []
-        self.add_rule('O,o', '0')
-        self.add_rule('I,i', '1')
-        self.add_rule('B,b', '8')
-        self.add_rule('S,s', '$')
-        self.add_rule('L,l', '!')
+        self.password.rule_list = []
+        for key, value in self.password.config['rules_init'].items():
+            self.add_rule(key, value)
         add_rule_button = tk.Button(
             root,
             text="+",
@@ -409,6 +418,15 @@ class App:
             command=self.add_rule
         )
         add_rule_button.pack(pady=(0,10))
+
+        # CONFIG FRAME
+        self.save_config = tk.Button(
+            root,
+            text="Save config",
+            width=36,
+            command=self.save_config
+        )
+        self.save_config.pack()
 
         # Initializing lists
         self.buttons = []
