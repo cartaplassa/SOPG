@@ -14,8 +14,6 @@ class App:
             
             For some reason Debian's graphical toolkit libraries don't show 
             whether a checkbox/radio is toggled, so I can't test it rn. 
-            
-            Is used in result() function of parent class
             """
             # Defining
             core.Password.Rule.__init__(self, rule_from, rule_to)
@@ -44,10 +42,11 @@ class App:
         def delete(self):
             """To delete a frame two actions are required:
             1) Destroying widget in TKinter, so it won't be drawn
-            2) Removing element from list it's stored in, so it won't be applied
+            2) Removing element from list it's stored in, 
+            so the Rule isn't applied
             
             To achieve this, the second function - remove_rule() - is written
-            in parent App class and passed in add_rule() and then to __init__()
+            in parent App class and passed in add_rule() and then to __init__
             when a new Rule is instantiated. 
 
             Explanation w/ examples: stackoverflow.com/questions/72852388/
@@ -61,7 +60,8 @@ class App:
             
             Example: | A,b,c | => | x | will return {A: x, b: x, c: x}
             """
-            return {rule: self.entry_to.get() for rule in self.entry_from.get().split(',')}
+            return {rule: self.entry_to.get() \
+                for rule in self.entry_from.get().split(',')}
     # End of Rule 
 
 
@@ -79,16 +79,7 @@ class App:
             rule_from, 
             rule_to
         ))
- 
-    def result(self) -> dict[str, str]:
-        """Iterates through all replacement rules and combines them to a single
-        dictionary. Uses `Rule`'s .get() method.
-        """
-        result_dict = {}
-        for each in self.password.rule_list:
-            result_dict = {**result_dict, **each.get()} if each.checked else result_dict
-        return result_dict
-    # End of Rule functions
+    # End of Rule-related functions
 
     def set_case(self, new_case):
         """Changes password's case w/o regenerating anything else
@@ -107,16 +98,16 @@ class App:
         
         Feeds new configuration to the child password object
         """
+        self.password.config['passphrase'] = self.passphrase_field.get()
         self.password.config['header_flag'] = self.header_flag.get()
         self.password.config['divider_flag'] = self.divider_flag.get()
         self.password.config['tail_flag'] = self.tail_flag.get()
         self.password.config['header'] = self.header_field.get()
         self.password.config['divider'] = self.divider_field.get()
         self.password.config['tail'] = self.tail_field.get()
-        # .replace part is required to recognize the backslashes
-        self.password.config['special_chars'] = self.special_chars_field.get()#.replace("\\", "\\\\")
+        self.password.config['special_chars'] = self.special_chars_field.get()
         self.password.update_dividers()
-        # self.password.config['rules_init'] = {each.rule_from: each.rule_to for each in self.password.rule_list}
+        self.password.config['leetify_var'] = self.leetify_var.get()
         self.password.set_sequence(self.sequence_field.get())
         # update_buttons() is called twice in regen, shouldn't be a problem,
         # but better solution should be considered
@@ -246,7 +237,8 @@ class App:
             text='Leetify',
             variable=self.leetify_var,
             offvalue=False,
-            onvalue=True
+            onvalue=True,
+            command=self.update_config
         )
         self.leetify_box.grid(row=0,column=2)
         self.leetify_box.select()

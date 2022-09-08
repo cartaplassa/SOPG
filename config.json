@@ -15,5 +15,6 @@
     "tail_flag": "custom",
     "tail": "#",
     "case": "capital",
+    "leetify_var": true,
     "passphrase": "Custom passphrase goes here"
 }

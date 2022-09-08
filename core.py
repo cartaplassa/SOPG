@@ -28,8 +28,9 @@ class Password():
         dictionary. Uses `Rule`'s .get() method.
         """
         result_dict = {}
-        for each in rule_list:
-            result_dict = {**result_dict, **each.get()}
+        if self.config['leetify_var']:
+            for each in rule_list:
+                result_dict = {**result_dict, **each.get()}
         return result_dict
 
     def new_sequence(self, source: str) -> list:
@@ -175,6 +176,7 @@ def print_help(password):
     print(f"current divider: {password.config['divider'] if password.config['divider_flag'] == 'custom' else password.config['divider_flag']}")
     print('t: Change the tail sequence, tr: Randomize from pool, tm: Match the header sequence')
     print(f"current tail:     {password.config['tail'] if password.config['tail_flag'] == 'custom' else password.config['tail_flag']}")
+    print(f"l: Toggle leetify function, current state: {('on', 'off')[password.config['leetify_var']]}")
     print('dump: Save configuration')
     print('x: Exit the program')
 
@@ -261,6 +263,9 @@ def main():
         
         elif choice == 'sc':
             password.set_special_chars(input('New special characters pool: '))
+        
+        elif choice == 'l':
+            password.config['leetify_var'] = not password.config['leetify_var']
         
         elif choice == 'dump':
             with open("config.json", "w") as f:
