@@ -129,7 +129,7 @@ class Password():
         self.pool = {}
         # Opening files, populating pool
         for each in os.listdir('./wordlists'):
-            with open(f'wordlists/{each}', 'r') as file:
+            with open(f'./wordlists/{each}', 'r') as file:
                 self.pool[str(os.path.splitext(each)[0])] = []
                 for line in file:
                     self.pool[str(os.path.splitext(each)[0])].append(line.strip())
@@ -144,7 +144,7 @@ class Password():
         self.set_sequence('')
         self.regen_whole()
 
-    # Used in main.py to CB copy, might require attention later
+    # Used in legacy main.py to CB copy, might require attention later
     def get(self):
         return ''.join([
             self.config['header'], 

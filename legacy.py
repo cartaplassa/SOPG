@@ -7,13 +7,7 @@ class App:
     class Rule(core.Password.Rule, tk.Frame):
         def __init__(self, parent, on_delete=None, rule_from='', rule_to=''):
             """`Rule` is a special frame that have two entry fields, values in
-            first are replaced with values in second. 
-            
-            Possible BUG: Checkbox is there to temporarily disable a rule but
-            it seems like it's not working.
-            
-            For some reason Debian's graphical toolkit libraries don't show 
-            whether a checkbox/radio is toggled, so I can't test it rn. 
+            first are replaced with values in second.
             """
             # Defining
             core.Password.Rule.__init__(self, rule_from, rule_to)
