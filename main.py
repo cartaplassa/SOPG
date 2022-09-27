@@ -1,5 +1,5 @@
 import tkinter as tk
-import core
+import core.main as core
 import json
 
 
@@ -278,14 +278,14 @@ class App:
         self.header_field.insert(0, self.password.config['header'])
         self.header_field.pack(side=tk.LEFT)
         # Header - Random
-        self.header_random = tk.Radiobutton(
+        self.header_random_radio = tk.Radiobutton(
             self.symbols_frame,
             text="Random",
             variable=self.header_flag, 
             value='random', 
             command=self.update_config
         )
-        self.header_random.grid(row=0, column=1, padx=(5,10), pady=(15,0))
+        self.header_random_radio.grid(row=0, column=1, padx=(5,10), pady=(15,0))
         # Chars
         self.special_chars = tk.LabelFrame(
             self.symbols_frame,
@@ -295,6 +295,11 @@ class App:
         self.special_chars_field = tk.Entry(self.special_chars, width=14)
         self.special_chars_field.insert(0, self.password.config['special_chars'])
         self.special_chars_field.pack()
+        # Header - Selection
+        if self.password.config['header_flag'] == 'custom':
+            self.header_custom_radio.select()
+        elif self.password.config['header_flag'] == 'random':
+            self.header_random_radio.select()
 
         # Dividers - Custom
         self.divider_flag = tk.StringVar()
@@ -312,23 +317,30 @@ class App:
         self.divider_field.insert(0, self.password.config['divider'])
         self.divider_field.pack()
         # Dividers - Random
-        self.divider_random = tk.Radiobutton(
+        self.divider_random_radio = tk.Radiobutton(
             self.symbols_frame,
             text="Random",
             variable=self.divider_flag, 
             value='random', 
             command=self.update_config
         )
-        self.divider_random.grid(row=1, column=1, padx=(5,10), pady=(15,0))
+        self.divider_random_radio.grid(row=1, column=1, padx=(5,10), pady=(15,0))
         # Dividers - Match header
-        self.divider_match = tk.Radiobutton(
+        self.divider_match_radio = tk.Radiobutton(
             self.symbols_frame,
             text="Match header",
             variable=self.divider_flag, 
             value='match header', 
             command=self.update_config
         )
-        self.divider_match.grid(row=1, column=2, padx=(5,10), pady=(15,0))
+        self.divider_match_radio.grid(row=1, column=2, padx=(5,10), pady=(15,0))
+        # Divider - Selection
+        if self.password.config['divider_flag'] == 'custom':
+            self.divider_custom_radio.select()
+        elif self.password.config['divider_flag'] == 'random':
+            self.divider_random_radio.select()
+        elif self.password.config['divider_flag'] == 'match':
+            self.divider_match_radio.select()
 
         # Tail - Custom
         self.tail_flag = tk.StringVar()
@@ -346,23 +358,30 @@ class App:
         self.tail_field.insert(0, self.password.config['tail'])
         self.tail_field.pack()
         # Tail - Random
-        self.tail_random = tk.Radiobutton(
+        self.tail_random_radio = tk.Radiobutton(
             self.symbols_frame,
             text="Random",
             variable=self.tail_flag, 
             value='random', 
             command=self.update_config
         )
-        self.tail_random.grid(row=2, column=1, padx=(5,10), pady=(15,0))
+        self.tail_random_radio.grid(row=2, column=1, padx=(5,10), pady=(15,0))
         # Tail - Match header
-        self.tail_match = tk.Radiobutton(
+        self.tail_match_radio = tk.Radiobutton(
             self.symbols_frame,
             text="Match header",
             variable=self.tail_flag, 
             value='match header', 
             command=self.update_config
         )
-        self.tail_match.grid(row=2, column=2, padx=(5,10), pady=(15,0))
+        self.tail_match_radio.grid(row=2, column=2, padx=(5,10), pady=(15,0))
+        # Tail - Selection
+        if self.password.config['tail_flag'] == 'custom':
+            self.tail_custom_radio.select()
+        elif self.password.config['tail_flag'] == 'random':
+            self.tail_random_radio.select()
+        elif self.password.config['tail_flag'] == 'match':
+            self.tail_match_radio.select()
 
         # CASE FRAME
         self.case_frame = tk.LabelFrame(root)

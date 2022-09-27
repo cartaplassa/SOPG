@@ -128,12 +128,12 @@ class Password():
     def __init__(self):
         self.pool = {}
         # Opening files, populating pool
-        for each in os.listdir('wordlists'):
+        for each in os.listdir('./wordlists'):
             with open(f'wordlists/{each}', 'r') as file:
                 self.pool[str(os.path.splitext(each)[0])] = []
                 for line in file:
                     self.pool[str(os.path.splitext(each)[0])].append(line.strip())
-        with open("config.json", "r") as file:
+        with open("./config.json", "r") as file:
             self.config = json.load(file)
         self.sequence = self.new_sequence(self.config['sequence'])
         self.rule_list = []
@@ -268,7 +268,7 @@ def main():
             password.config['leetify_var'] = not password.config['leetify_var']
         
         elif choice == 'dump':
-            with open("config.json", "w") as f:
+            with open("./config.json", "w") as f:
                 json.dump(password.config, f, indent=4)
 
         else:
